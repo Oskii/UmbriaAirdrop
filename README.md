@@ -1,4 +1,5 @@
 # UmbriaAirdrop
+
 Airdrop solidity contracts and migrations code, for early Umbria and Umbria-ETH LP holders.
 
 This set of contracts and its respective migrations code is designed to be tested by the community, before deployment. This is for two reasons:
@@ -64,11 +65,11 @@ The airdrop contracts are expected to have the following functionality:
    <li>✔️ <code>msg.sender</code> should be able to set a list of UMBR holders and their respective balances after March 1st</li>
    <li>✔️ <code>msg.sender</code> should be able to set a list of UMBR-ETH LP (Uniswap LP Token) holders and their respective balances after March 1st</li>
    <li>✔️ Anyone should be able to see their wallet's UMBR or UMBR-ETH LP balance at the time of the snapshot. If they had a balance of 0, the contract should throw an error</li>
-   <li>⌛ The contract should store a mapping of users who have claimed the airdrop based on holding UMBR</li>
-   <li>⌛ The contract should store a mapping of users who have claimed the airdrop based on holding UMBR-ETH LP</li>
-   <li>⌛ The contract should throw an error if a user tries to double-claim</li>
+   <li>✔️ The contract should store a mapping of users who have claimed the airdrop based on holding UMBR</li>
+   <li>✔️ The contract should store a mapping of users who have claimed the airdrop based on holding UMBR-ETH LP</li>
+   <li>✔️ The contract should throw an error if a user tries to double-claim</li>
    <li>⌛ The contract should store an amount of UMBR</li>
    <li>⌛ The contract should allow users to claim using UMBR-ETH LP snapshot balance</li>
    <li>⌛ The contract should allow users to claim using UMBR snapshot balance</li>
-   <li>⌛ The contract should emit an Airdrop even whenever a use claims</li>
+   <li>✔️ The contract should emit an Airdrop even whenever a user claims</li>
 </ul>
