@@ -7,10 +7,9 @@ import "./ERC20.sol";
 contract AirDrop is Owned {
     using SafeMath for uint256;
 
-    uint8 public constant DECIMALS = 18;
-    uint256 public constant DECIMALFACTOR = 10**uint256(DECIMALS);
-    uint256 public AIRDROP_SUPPLY = 500000 * uint256(DECIMALFACTOR);
-    uint256 public TOTAL_SUPPLY = 10000000 * uint256(DECIMALFACTOR);
+    uint8 public constant decimals = 18;
+    uint256 public constant decimal_factor = 10**uint256(decimals);
+    uint256 public airdrop_supply = 100000 * uint256(decimal_factor);
     uint256 public claimedTokens = 0;
 
     uint256 public totalUMBRHoldings = 0;
@@ -21,16 +20,15 @@ contract AirDrop is Owned {
     mapping(address => uint256) public UmbrEthLpBalance;
     mapping(address => uint256) public UmbrBalance;
 
-    ERC20 public airdropToken;
+    mapping(address => uint16) public UmbrEthLpClaimed;
+    mapping(address => uint16) public UmbrClaimed;
 
-    event AirDropped(
-        address[] _recipients,
-        uint256 _amount,
-        uint256 claimedTokens
-    );
+    ERC20 private airdropToken;
 
-    constructor(ERC20 token) public {
-        airdropToken = token;
+    event AirDropped(address recipient, uint256 amount);
+
+    constructor(ERC20 _airdropToken) public {
+        airdropToken = _airdropToken;
     }
 
     function setLPHoldersAirdrop(
@@ -91,34 +89,54 @@ contract AirDrop is Owned {
         return UmbrEthLpBalance[msg.sender];
     }
 
-    function claimLPAirdrop() external view {
-        require(
-            UmbrEthLpBalance[msg.sender] != 0,
-            "ERROR: Your LP Balance at March 1st 2021 was too low to claim this airdrop"
-        );
+    function checkAlreadyClaimedUmbrAirdrop() external view returns (uint16) {
+        return UmbrClaimed[msg.sender];
     }
 
-    function claimUMBRAirdrop() external view {
-        require(
-            UmbrEthLpBalance[msg.sender] > 100,
-            "ERROR: Your LP Balance at March 1st 2021 was too low to claim this airdrop"
-        );
-    }
-
-    function airDrop(address[] memory _recipients, uint256 _amount)
+    function checkAlreadyClaimedUmbrEthLpAirdrop()
         external
-        onlyOwner
+        view
+        returns (uint16)
     {
-        require(_amount > 0);
-        uint256 airdropped;
-        uint256 amount = _amount * uint256(DECIMALFACTOR);
-        for (uint256 index = 0; index < _recipients.length; index++) {
-            airdropToken.transfer(_recipients[index], amount);
-            airdropped = airdropped.add(amount);
-        }
-        AIRDROP_SUPPLY = AIRDROP_SUPPLY.sub(airdropped);
-        TOTAL_SUPPLY = TOTAL_SUPPLY.sub(airdropped);
-        claimedTokens = claimedTokens.add(airdropped);
-        emit AirDropped(_recipients, _amount, claimedTokens);
+        return UmbrEthLpClaimed[msg.sender];
+    }
+
+    function claimLPAirdrop() external payable {
+        require(
+            UmbrEthLpBalance[msg.sender] >= 0,
+            "ERROR: Your LP Balance at March 1st 2021 was too low to claim this airdrop"
+        );
+
+        require(
+            UmbrEthLpClaimed[msg.sender] == 0,
+            "Error: This address has already claimed the LP airdrop"
+        );
+
+        UmbrEthLpClaimed[msg.sender] = 1;
+
+        emit AirDropped(msg.sender, UmbrEthLpBalance[msg.sender]);
+
+        airdropToken.increaseAllowance(
+            msg.sender,
+            UmbrEthLpBalance[msg.sender]
+        );
+    }
+
+    function claimUMBRAirdrop() external payable {
+        require(
+            UmbrBalance[msg.sender] > 100,
+            "ERROR: Your LP Balance at March 1st 2021 was too low to claim this airdrop"
+        );
+
+        require(
+            UmbrClaimed[msg.sender] == 0,
+            "Error: This address has already claimed the UMBR airdrop"
+        );
+
+        UmbrClaimed[msg.sender] = 1;
+
+        emit AirDropped(msg.sender, UmbrBalance[msg.sender]);
+
+        airdropToken.increaseAllowance(msg.sender, UmbrBalance[msg.sender]);
     }
 }

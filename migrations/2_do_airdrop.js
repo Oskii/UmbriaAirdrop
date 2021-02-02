@@ -153,4 +153,28 @@ module.exports = async function (deployer, network, accounts) {
     var UmbrAirdropEntitlement = await airdropInstance.seeUmbrAirdropEntitlement();
 
     console.log("The airdrop entitlement of the deployer is " + web3.utils.fromWei(UmbrAirdropEntitlement));
+
+    console.log("Checking whether the airdrop contract recognises " + accounts[0] + " has not claimed the airdrop yet");
+
+    var hasClaimedAirdrop = await airdropInstance.checkAlreadyClaimedUmbrAirdrop();
+
+    console.log("The result of the check: " + hasClaimedAirdrop);
+
+    console.log("Attempting to claim the airdrop using " + accounts[0]);
+
+    await airdropInstance.claimUMBRAirdrop();
+
+    console.log("Successfully made a token allowance to " + accounts[0]);
+
+    console.log("Checking whether the airdrop contract recognises " + accounts[0] + " has indeed claimed the airdrop");
+
+    hasClaimedAirdrop = await airdropInstance.checkAlreadyClaimedUmbrAirdrop();
+
+    console.log("The result of the check: " + hasClaimedAirdrop);
+
+    console.log("Attempting to claim the airdrop a second time");
+
+    await airdropInstance.claimUMBRAirdrop();
+
+    console.log("Successfully claimed the airdrop a second time");
 };
