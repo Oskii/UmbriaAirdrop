@@ -27,7 +27,11 @@ contract AirDrop is Owned {
 
     event AirDropped(address recipient, uint256 amount);
 
-    constructor(ERC20 _airdropToken) public {
+    constructor(
+        ERC20 _airdropToken,
+        uint256 _totalUMBRHoldings,
+        uint256 _totalLPHoldings
+    ) public {
         airdropToken = _airdropToken;
     }
 
@@ -114,9 +118,17 @@ contract AirDrop is Owned {
 
         UmbrEthLpClaimed[msg.sender] = 1;
 
+        airdropToken.approve(msg.sender, UmbrEthLpBalance[msg.sender]);
+
         emit AirDropped(msg.sender, UmbrEthLpBalance[msg.sender]);
 
-        airdropToken.increaseAllowance(
+        //airdropToken.increaseAllowance(
+        //    msg.sender,
+        //    UmbrEthLpBalance[msg.sender]
+        //);
+
+        airdropToken.transferFrom(
+            address(this),
             msg.sender,
             UmbrEthLpBalance[msg.sender]
         );
@@ -135,8 +147,14 @@ contract AirDrop is Owned {
 
         UmbrClaimed[msg.sender] = 1;
 
+        airdropToken.approve(msg.sender, UmbrBalance[msg.sender]);
+
         emit AirDropped(msg.sender, UmbrBalance[msg.sender]);
 
-        airdropToken.increaseAllowance(msg.sender, UmbrBalance[msg.sender]);
+        airdropToken.transferFrom(
+            address(this),
+            msg.sender,
+            UmbrBalance[msg.sender]
+        );
     }
 }
