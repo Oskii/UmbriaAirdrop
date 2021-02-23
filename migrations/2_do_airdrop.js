@@ -6,6 +6,10 @@ const web3 = new Web3('https://ropsten.infura.io/v3/89f762f8adbe4f819b574fc5c523
 
 module.exports = async function (deployer, network, accounts) {
     
+    var airdropUMBRAmount = web3.utils.toWei("50000");
+
+    var airdropLPAmount = web3.utils.toWei("50000");
+
     var UmbrHolders = 
         [
             accounts[0],   //Ganache Account 1
@@ -64,7 +68,7 @@ module.exports = async function (deployer, network, accounts) {
     
     var UmbrLPHoldersAmounts =
         [
-            100.01,   //Oskii Account 1
+            150.05,   //Oskii Account 1
             611.106892,
             147.128462,
             24.730841,
@@ -76,164 +80,188 @@ module.exports = async function (deployer, network, accounts) {
             0.096313
         ]
     
+    var UMBLRLpAirdropEntitlements = [];
+
+    var UMBRAirdropEntitlements = [];
+    
     var totalUMBRLPHoldings = 0;
+
+    var totalUMBRHoldings = 0;
+
+    console.log("\n\n======================= CALCULATING LP HOLDERS ENTITLEMENT RATIO =======================");
+    console.log("\n");
 
     for (var i = 0; i < UmbrLPHoldersAmounts.length; i++)
     {
-        console.log(totalUMBRLPHoldings + " + " + UmbrLPHoldersAmounts[i] + " = " + (totalUMBRLPHoldings + parseFloat(UmbrLPHoldersAmounts[i])));
         totalUMBRLPHoldings += parseFloat(UmbrLPHoldersAmounts[i]);
         UmbrLPHoldersAmounts[i] = web3.utils.toWei(UmbrLPHoldersAmounts[i].toFixed(8));
     }
 
-    console.log("===============================================");
+    var UMBRLpRatio = airdropLPAmount / web3.utils.toWei(totalUMBRLPHoldings.toString());
+    console.log("The amount of UMBR given per UMBR-LP Token is " + UMBRLpRatio);
 
-    var totalUMBRHoldings = 0;
+    console.log("\n\n======================= CONSTRUCTING ARRAY OF UMBR-LP HOLDERS ENTITLEMENTS =======================");
+    console.log("\n");
+
+    for (var i = 0; i < UmbrLPHoldersAmounts.length; i++)
+    {
+        let entitlementAmount = web3.utils.fromWei(UmbrLPHoldersAmounts[i]) * UMBRLpRatio;
+        console.log("Entitlement for holder with " + web3.utils.fromWei(UmbrLPHoldersAmounts[i]) + " is " + entitlementAmount);
+        UMBLRLpAirdropEntitlements[i] = parseFloat(entitlementAmount);
+    }
 
     for (var i = 0; i < UmbrHoldersAmounts.length; i++)
     {
-        console.log(totalUMBRHoldings + " + " + UmbrHoldersAmounts[i] + " = " + (totalUMBRHoldings + parseFloat(UmbrHoldersAmounts[i])));
         totalUMBRHoldings += parseFloat(UmbrHoldersAmounts[i]);
         UmbrHoldersAmounts[i] = web3.utils.toWei(UmbrHoldersAmounts[i].toFixed(8));
     }
 
-    console.log("After the loop, the type for totalUMBRHoldings is " + typeof totalUMBRHoldings);
+    console.log("\n\n======================= CALCULATING UMBR HOLDERS ENTITLEMENT RATIO =======================");
+    console.log("\n");
 
-    console.log("===============================================");
-    
-    //totalUMBRHoldings = totalUMBRHoldings.toFixed(6);
-    //totalUMBRLPHoldings = totalUMBRLPHoldings.toFixed(6);
+    var UMBRRatio = airdropUMBRAmount / web3.utils.toWei(totalUMBRHoldings.toString());
+    console.log("The amount of UMBR given per UMBR Token is " + UMBRRatio);
 
-    console.log("Total UMBR LP Holdings is " + totalUMBRLPHoldings + " " + (typeof totalUMBRLPHoldings));
-    console.log("Total UMBR Holdings is " + totalUMBRHoldings + " " + (typeof totalUMBRHoldings));
+    console.log("\n\n======================= CONSTRUCTING ARRAY OF UMBR HOLDERS ENTITLEMENTS =======================");
+    console.log("\n");
+
+    for (var i = 0; i < UmbrHoldersAmounts.length; i++)
+    {
+        let entitlementAmount = web3.utils.fromWei(UmbrHoldersAmounts[i]) * UMBRRatio;
+        console.log("Entitlement for holder with " + web3.utils.fromWei(UmbrHoldersAmounts[i]) + " is " + entitlementAmount);
+        UMBRAirdropEntitlements[i] = parseFloat(entitlementAmount);
+    }
+
+    console.log("\n\n==============================================");
+
+    console.log("Total UMBR LP Holdings is " + totalUMBRLPHoldings);
+    console.log("Total UMBR Holdings is " + totalUMBRHoldings);
     
+    console.log("\n\n======================= CONTRACT DEPLOYMENT =======================");
+    console.log("\n");
     
-    console.log("Deploying a new mock-umbria Token to test an airdrop...");
+    console.log("Deploying a new mock-umbria Token to test the airdrop functionality ... Eventually this will have to be changed to the actual mainnet UMBR token");
     //Create an ERC20 Token which we will airdrop later
     const MOCK_TOKEN = await MockERC20.new('MOCK', "MCK", web3.utils.toWei('5000000'));
     
     console.log("The mock umbria token was successfully deployed... at " + MOCK_TOKEN.address);
+    
+    totalUMBRHoldings = web3.utils.toWei(totalUMBRHoldings.toFixed(8));
+    totalUMBRLPHoldings = web3.utils.toWei(totalUMBRLPHoldings.toFixed(8));
 
     console.log("Deploying the airdrop smart contract...");
-
-    console.log("The typeof value of totalUMBRHoldings is " + typeof totalUMBRHoldings + ": " + totalUMBRHoldings);
-
-    console.log("The typeof value of totalUMBRLPHoldings is " + typeof totalUMBRLPHoldings + ": " + totalUMBRLPHoldings);
-
-    console.log("Lets convert that to Wei... ");
-
-    console.log("totalUMBRHoldings.toWei() = " + web3.utils.toWei(totalUMBRHoldings.toFixed(6)));
-
-    console.log("totalUMBRLPHoldings.toWei() = " + web3.utils.toWei(totalUMBRLPHoldings.toFixed(6)));
-    
-    totalUMBRHoldings = web3.utils.toWei(totalUMBRHoldings.toFixed(6));
-    totalUMBRLPHoldings = web3.utils.toWei(totalUMBRLPHoldings.toFixed(6));
     
     //Deploy the airdrop contract and set MOCK_TOKEN as the token we will be airdropping
-    await deployer.deploy(Airdrop, MOCK_TOKEN.address, totalUMBRHoldings, totalUMBRLPHoldings);
+    //constructor(ERC20 _airdropToken, uint256 _totalUMBRHoldings, uint256 _totalLPHoldings)
+    await deployer.deploy(Airdrop, MOCK_TOKEN.address, web3.utils.toWei(totalUMBRHoldings), web3.utils.toWei(totalUMBRLPHoldings));
 
     var address_1_balance = await MOCK_TOKEN.balanceOf.call(accounts[0]);
-    var address_2_balance = await MOCK_TOKEN.balanceOf.call(accounts[1]);
 
-    console.log("The Mock-UMBR balance of accounts[0] which we airdropped to is " + web3.utils.fromWei(address_1_balance));
-    console.log("The Mock-UMBR balance of accounts[1] which we airdropped to is " + web3.utils.fromWei(address_2_balance));
+    console.log("The Mock-UMBR balance of accounts[0] before transfering the UMBR token to the airdrop contract is " + web3.utils.fromWei(address_1_balance));
   
     const airdropInstance = await Airdrop.deployed(); 
     console.log("The airdrop smart contract was successfully deployed");
-
     console.log("Sending mock-umbria token to the airdrop contract...");
-    console.log("The airdrop contract's address is " + airdropInstance.address);
 
     //Mint some tokens and give them to the airdrop contract
     await MOCK_TOKEN.transfer(airdropInstance.address, web3.utils.toWei('5000000'));
-    console.log("The mock-umbria token successfully minted " + 1000000 + " Mock-UMBR and sent them to the airdrop contract...");
+    console.log("The mock-umbria token successfully minted " + 5000000 + " Mock-UMBR and sent them to the airdrop contract...");
     
     var balance = await MOCK_TOKEN.balanceOf.call(airdropInstance.address)
     console.log("The airdrop contract has a balance of " + web3.utils.fromWei(balance) + " Mock-UMBR...");
     
-    /*
-    * The following code will airdrop an amount of UMBRIA to a list of recipients as defined in
-    * this deployment code. The airdrop will cost GAS for the deployer, but will airdrop
-    * the correct and equal amount of tokens to each of the specified recipients
-    */
-    
-    var recipients =
-        [
-            accounts[0],   //Ganache Account 1
-            accounts[1]    //Ganache Account 2
-        ]
 
-    //console.log("Initiating an airdrop to recipient accounts[0]..." + accounts[0]);
-    //await airdropInstance.claimUMBRAirdrop({ from: accounts[0] });
+    var UMBRContractHoldings = await airdropInstance.getTotalUMBRHoldings();
+    var UMBREthLpContractHoldings = await airdropInstance.getTotalUMBREthLpHoldings();
     
-    //console.log("Initiating an airdrop to recipient accounts[1]..." + accounts[1]);
-    //await airdropInstance.claimUMBRAirdrop({ from: accounts[1] });
-    
-    //console.log("Airdrop successfully completed to two addresses...");
+    console.log("The UMBR holdings of eligible airdrop participants is " + web3.utils.fromWei(UMBRContractHoldings));
+    console.log("The UMBR-ETH Lp holdings of eligible airdrop participants is " + web3.utils.fromWei(UMBREthLpContractHoldings));
 
-    address_1_balance = await MOCK_TOKEN.balanceOf.call(accounts[0]);
-    address_2_balance = await MOCK_TOKEN.balanceOf.call(accounts[1]);
-    
-    console.log("The Mock-UMBR balance of accounts[0] moments before airdrop is " + web3.utils.fromWei(address_1_balance));
-    console.log("The Mock-UMBR balance of accounts[1] moments before airdrop is " + web3.utils.fromWei(address_2_balance));
-
-    balance = await MOCK_TOKEN.balanceOf.call(airdropInstance.address);
-    console.log("The airdrop contract balance of MOCK_TOKEN now is " + web3.utils.fromWei(balance));
-    
-    
     /*
     * The following code will require users to claim the UMBR tokens themselves, within the airdrop.
     * each user will personally call the contract and pay the GAS fees for collecting their UMBR tokens
     */
-    
+    console.log("\n\n======================= UMBR HOLDERS AIRDROP =======================");
+    console.log("\n");
 
-    console.log("Setting UMBR holders in the airdrop contract, based on snapshot");
     await airdropInstance.setTokenHoldersAirdrop(UmbrHolders, UmbrHoldersAmounts);
+    console.log("Set UMBR holders list in the airdrop contract...");
 
-    console.log("Setting UMBR-ETH LP holders in the airdrop contract, based on snapshot");
-    await airdropInstance.setLPHoldersAirdrop(UmbrLPHolders, UmbrLPHoldersAmounts);
-
-    console.log("The address of the deployer = " + accounts[0]);
-
-    console.log("Attempting to access the airdrop of " + accounts[0]);
+    console.log("Attempting to see airdrop entitlement for " + accounts[0]);
     var UmbrAirdropEntitlement = await airdropInstance.seeUmbrAirdropEntitlement();
+    console.log("The airdrop entitlement of " + accounts[0] + " is " + web3.utils.fromWei(UmbrAirdropEntitlement)) + " UMBR";
+    console.log("\n")
 
-    console.log("The airdrop entitlement of the deployer is " + web3.utils.fromWei(UmbrAirdropEntitlement));
-
-    console.log("Checking whether the airdrop contract recognises " + accounts[0] + " has not claimed the airdrop yet");
-
+    console.log("Checking whether the airdrop contract recognises that " + accounts[0] + " has not claimed the airdrop yet");
     var hasClaimedAirdrop = await airdropInstance.checkAlreadyClaimedUmbrAirdrop();
+    console.log("Has " + accounts[0] + " claimed the airdrop yet? [0 No] [1 Yes]: " + hasClaimedAirdrop);
+    console.log("\n");
 
-    console.log("The result of the check: " + hasClaimedAirdrop);
+    balance = await MOCK_TOKEN.balanceOf.call(accounts[0]);
+    console.log("The UMBR balance of " + accounts[0] + " before the airdrop claim is " + web3.utils.fromWei(balance));
 
-    console.log("Attempting to claim the airdrop using " + accounts[0]);
+
+    console.log("Attempting to claim the airdrop for " + accounts[0]);
 
     await airdropInstance.claimUMBRAirdrop({from: accounts[0]});
 
-    console.log("Successfully made a token allowance to " + accounts[0]);
+    console.log("Successfully claimed airdrop...");
 
     balance = await MOCK_TOKEN.balanceOf.call(accounts[0]);
 
-    console.log("The balance of accounts[0] is " + balance);
+    console.log("The balance of " + accounts[0] + " after the airdrop claim is " + web3.utils.fromWei(balance));
+    console.log("\n");
 
     console.log("Checking whether the airdrop contract recognises " + accounts[0] + " has indeed claimed the airdrop");
 
     hasClaimedAirdrop = await airdropInstance.checkAlreadyClaimedUmbrAirdrop();
 
-    console.log("The result of the check: " + hasClaimedAirdrop);
-    
-    console.log("Attempting to remove the coins that were claimed, and send them to self");
+    console.log("Has " + accounts[0] + " claimed the airdrop yet? [0 No] [1 Yes]: " + hasClaimedAirdrop);
 
-    //await airdropInstance.claimUMBRAirdrop();
+    console.log("\n\n======================= UMBR-ETH LP HOLDERS AIRDROP =======================");
+    console.log("\n");
 
-    //balance = await MOCK_TOKEN.balanceOf.call(accounts[0]);
+    await airdropInstance.setLPHoldersAirdrop(UmbrLPHolders, UmbrLPHoldersAmounts);
+    console.log("Set UMBR-ETH LP holders in the airdrop contract...");
+    console.log("\n");
 
-    //console.log("The balance of accounts[0] is " + balance);
+    console.log("Attempting to see airdrop entitlement for " + accounts[0]);
+    var UmbrEthLpAirdropEntitlement = await airdropInstance.seeLPAirdropEntitlement();
+    console.log("The airdrop entitlement of " + accounts[0] + " is " + web3.utils.fromWei(UmbrEthLpAirdropEntitlement)) + " UMBR";
+    console.log("\n")
 
-    //console.log("Attempting to claim the airdrop a second time");
+    console.log("Checking whether the airdrop contract recognises that " + accounts[0] + " has not claimed the airdrop yet");
+    var hasClaimedUmbrEthLpAirdrop = await airdropInstance.checkAlreadyClaimedUmbrEthLpAirdrop();
+    console.log("Has " + accounts[0] + " claimed the airdrop yet? [0 No] [1 Yes]: " + hasClaimedUmbrEthLpAirdrop);
+    console.log("\n");
 
-    //await airdropInstance.claimUMBRAirdrop();
+    balance = await MOCK_TOKEN.balanceOf.call(accounts[0]);
+    console.log("The UMBR balance of " + accounts[0] + " before the UMBR-ETH LP airdrop claim is " + web3.utils.fromWei(balance));
 
-    //console.log("Successfully claimed the airdrop a second time");
+    console.log("Attempting to claim the airdrop for " + accounts[0]);
+
+    await airdropInstance.claimLPAirdrop({from: accounts[0]});
+
+    console.log("Successfully claimed airdrop...");
+
+    balance = await MOCK_TOKEN.balanceOf.call(accounts[0]);
+
+    console.log("The balance of " + accounts[0] + " after the UMBR-ETH LP airdrop claim is " + web3.utils.fromWei(balance));
+    console.log("\n");
+
+    console.log("Checking whether the airdrop contract recognises " + accounts[0] + " has indeed claimed the UMBR-ETH LP airdrop");
+
+    hasClaimedAirdrop = await airdropInstance.checkAlreadyClaimedUmbrEthLpAirdrop();
+
+
+    console.log("\n\n======================= TRY DOUBLE CLAIM =======================");
+    console.log("\n");
+
+    console.log("Attempting to claim the airdrop a second time...");
+
+    await airdropInstance.claimUMBRAirdrop();
+
+    console.log("Successfully claimed the airdrop a second time");
 
 
 };
