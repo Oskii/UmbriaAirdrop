@@ -68,9 +68,9 @@ The airdrop contracts are expected to have the following functionality:
    <li>✔️ The contract should store a mapping of users who have claimed the airdrop based on holding UMBR</li>
    <li>✔️ The contract should store a mapping of users who have claimed the airdrop based on holding UMBR-ETH LP</li>
    <li>✔️ The contract should throw an error if a user tries to double-claim</li>
-   <li>⌛ The contract should store an amount of UMBR</li>
-   <li>⌛ Airdrop amount should be contigent on UMBR/LP Balance vs Airdrop Max Supply </li>
-   <li>⌛ The contract should allow users to claim using UMBR-ETH LP snapshot balance</li>
-   <li>⌛ The contract should allow users to claim using UMBR snapshot balance</li>
+   <li>✔️ The contract should store an amount of UMBR</li>
+   <li>✔️ Airdrop amount should be contigent on UMBR/LP Balance vs Airdrop Max Supply </li>
+   <li>✔️ The contract should allow users to claim using UMBR-ETH LP snapshot balance</li>
+   <li>✔️ The contract should allow users to claim using UMBR snapshot balance</li>
    <li>✔️ The contract should emit an Airdrop even whenever a user claims</li>
 </ul>
