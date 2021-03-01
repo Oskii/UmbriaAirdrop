@@ -6,9 +6,9 @@ const web3 = new Web3('https://ropsten.infura.io/v3/89f762f8adbe4f819b574fc5c523
 
 module.exports = async function (deployer, network, accounts) {
     
-    var airdropUMBRAmount = web3.utils.toWei("50000");
+    var airdropUMBRAmount = web3.utils.toWei("33334");
 
-    var airdropLPAmount = web3.utils.toWei("50000");
+    var airdropLPAmount = web3.utils.toWei("66666");
 
     var UmbrHolders = 
         [
